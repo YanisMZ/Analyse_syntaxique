@@ -1,16 +1,22 @@
-// Test de base : déclaration de variables et fonctions
 
 
+struct air {
+int height, width;
+struct engine motor;
+};
 
 struct aircraft {
 int height, width;
 struct engine motor;
 };
 
-struct aircraft a1,a2;
+struct aircraft my_plane, my_shuttle, my_satellite;
 
 
 int main(void) {
+    //aircraft.height = 0;
+   // my_plane = my_shuttle;
+
     int a;
     int b;
     a = 10;
