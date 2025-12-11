@@ -1,0 +1,7 @@
+void f(void) {
+    struct small { 
+        int x; 
+    };
+    struct small a;   
+    a.x = 1;          
+}

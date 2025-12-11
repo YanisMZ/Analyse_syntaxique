@@ -42,59 +42,38 @@ void print_help() {
 %token <id> ADDSUB DIVSTAR AND OR EQ ORDER
 %token DOT
 
-%type <node> Prog DeclGlobales DeclGlobale Declarateurs StructDecl StructFields StructField 
-              DeclFoncts DeclFonct EnTeteFonct Parametres ListTypVar Corps ListDeclLocales DeclLocale
-              SuiteInstr Instr Exp TB FB M E T F Arguments ListExp 
+%type <node> Prog DeclVars Declarateurs StructDecls StructDecl StructFields StructField DeclFoncts DeclFonct 
+              EnTeteFonct Parametres ListTypVar Corps SuiteInstr Instr Exp TB FB M E T F 
+              Arguments ListExp 
 
 %start Prog
-%expect 3
+%expect 5
 %%
 
-/* ------------------------------------------- */
-/* MODIFICATION 1: GESTION DE L'ORDRE GLOBAL   */
-/* ------------------------------------------- */
-
 Prog:
-    DeclGlobales DeclFoncts {
+    StructDecls DeclVars DeclFoncts {
         Node *tmp = makeNode(Programme, NULL);
         if ($1) addChild(tmp, $1);
         if ($2) addChild(tmp, $2);
+        if ($3) addChild(tmp, $3);
         $$ = tmp;
         root = tmp;
     }
 ;
 
-DeclGlobales:
-    DeclGlobales DeclGlobale {
-        Node *tmp = $1 ? $1 : makeNode(DeclVars, NULL); 
-        addChild(tmp, $2);
-        $$ = tmp;
-    }
-  | { $$ = NULL; }
+StructDecls:
+      StructDecls StructDecl {
+          Node *tmp = $1 ? $1 : makeNode(StructDecls, NULL);
+          addChild(tmp, $2);
+          $$ = tmp;
+      }
+    | StructDecl {
+          Node *tmp = makeNode(StructDecls, NULL);
+          addChild(tmp, $1);
+          $$ = tmp;
+      }
+    | { $$ = NULL; }
 ;
-
-DeclGlobale:
-    /* struct aircraft {...}; */
-    StructDecl { $$ = $1; }
-    /* int x, y; */
-  | TYPE Declarateurs ';' {
-        Node *decl = makeNode(DeclVars, NULL);
-        addChild(decl, makeNode(id, $1));
-        addChild(decl, $2);
-        $$ = decl;
-    }
-    /* struct engine motor; */
-  | STRUCT IDENT Declarateurs ';' {
-        Node *decl = makeNode(DeclVars, NULL);
-        Node *structType = makeNode(id, "struct");
-        addChild(structType, makeNode(id, $2));
-        addChild(decl, structType);
-        addChild(decl, $3);
-        $$ = decl;
-    }
-;
-
-/* Règles des structures (inchangées) */
 
 StructDecl:
     STRUCT IDENT '{' StructFields '}' ';' {
@@ -133,7 +112,37 @@ StructField:
       }
 ;
 
-/* Règle Declarateurs (inchangée) */
+DeclVars:
+    DeclVars TYPE Declarateurs ';' {
+        Node *tmp = $1 ? $1 : makeNode(DeclVars, NULL);
+        Node *decl = makeNode(DeclVars, NULL);
+        addChild(decl, makeNode(id, $2));
+        addChild(decl, $3);
+        addChild(tmp, decl);
+        $$ = tmp;
+    }
+  | DeclVars STRUCT IDENT Declarateurs ';' {
+        Node *tmp = $1 ? $1 : makeNode(DeclVars, NULL);
+        Node *decl = makeNode(DeclVars, NULL);
+        Node *structType = makeNode(id, "struct");
+        addChild(structType, makeNode(id, $3));
+        addChild(decl, structType);
+        addChild(decl, $4);
+        addChild(tmp, decl);
+        $$ = tmp;
+    }
+  | STRUCT IDENT Declarateurs ';' {
+        Node *tmp = makeNode(DeclVars, NULL);
+        Node *decl = makeNode(DeclVars, NULL);
+        Node *structType = makeNode(id, "struct");
+        addChild(structType, makeNode(id, $2));
+        addChild(decl, structType);
+        addChild(decl, $3);
+        addChild(tmp, decl);
+        $$ = tmp;
+    }
+  | { $$ = NULL; }
+;
 
 Declarateurs:
     Declarateurs ',' IDENT {
@@ -147,8 +156,6 @@ Declarateurs:
         $$ = tmp;
     }
 ;
-
-/* Déclarations de fonctions (inchangées) */
 
 DeclFoncts:
     DeclFoncts DeclFonct {
@@ -187,15 +194,6 @@ EnTeteFonct:
         if ($4) addChild(tmp, $4);
         $$ = tmp;
     }
-  | STRUCT IDENT IDENT '(' Parametres ')' {
-        Node *tmp = makeNode(EnTeteFonct, NULL);
-        Node *structType = makeNode(id, "struct");
-        addChild(structType, makeNode(id, $2));
-        addChild(tmp, structType);
-        addChild(tmp, makeNode(id, $3));
-        if ($5) addChild(tmp, $5);
-        $$ = tmp;
-    }
 ;
 
 Parametres:
@@ -220,16 +218,6 @@ ListTypVar:
         addChild(tmp, param);
         $$ = tmp;
     }
-  | ListTypVar ',' STRUCT IDENT IDENT {
-        Node *tmp = $1 ? $1 : makeNode(ListTypVar, NULL);
-        Node *param = makeNode(Parametres, NULL);
-        Node *structType = makeNode(id, "struct");
-        addChild(structType, makeNode(id, $4));
-        addChild(param, structType);
-        addChild(param, makeNode(id, $5));
-        addChild(tmp, param);
-        $$ = tmp;
-    }
   | TYPE IDENT {
         Node *tmp = makeNode(ListTypVar, NULL);
         Node *param = makeNode(Parametres, NULL);
@@ -238,59 +226,14 @@ ListTypVar:
         addChild(tmp, param);
         $$ = tmp;
     }
-  | STRUCT IDENT IDENT {
-        Node *tmp = makeNode(ListTypVar, NULL);
-        Node *param = makeNode(Parametres, NULL);
-        Node *structType = makeNode(id, "struct");
-        addChild(structType, makeNode(id, $2));
-        addChild(param, structType);
-        addChild(param, makeNode(id, $3));
-        addChild(tmp, param);
-        $$ = tmp;
-    }
 ;
-
-/* --------------------------------------------- */
-/* MODIFICATION 2: GESTION DE L'ORDRE LOCAL      */
-/* --------------------------------------------- */
 
 Corps:
-    '{' ListDeclLocales SuiteInstr '}' {
+    '{' SuiteInstr '}' {
         Node *tmp = makeNode(Corps, NULL);
         if ($2) addChild(tmp, $2);
-        if ($3) addChild(tmp, $3);
         $$ = tmp;
     }
-;
-
-ListDeclLocales:
-    ListDeclLocales DeclLocale {
-        Node *tmp = $1 ? $1 : makeNode(DeclVars, NULL);
-        addChild(tmp, $2);
-        $$ = tmp;
-    }
-  | { $$ = NULL; }
-;
-
-DeclLocale:
-    /* struct B {...}; (définition locale) */
-      StructDecl { $$ = $1; }
-    /* int x, y; (déclaration de variable locale) */
-    | TYPE Declarateurs ';' {
-          Node *decl = makeNode(DeclVars, NULL);
-          addChild(decl, makeNode(id, $1));
-          addChild(decl, $2);
-          $$ = decl;
-      }
-    /* struct B b; (déclaration de variable struct locale) */
-    | STRUCT IDENT Declarateurs ';' {
-          Node *decl = makeNode(DeclVars, NULL);
-          Node *structType = makeNode(id, "struct");
-          addChild(structType, makeNode(id, $2));
-          addChild(decl, structType);
-          addChild(decl, $3);
-          $$ = decl;
-      }
 ;
 
 SuiteInstr:
@@ -302,12 +245,34 @@ SuiteInstr:
   | { $$ = NULL; }
 ;
 
-/* --------------------------------------------- */
-/* MODIFICATION 3: Instr (nettoyé des déclarations) */
-/* --------------------------------------------- */
-
 Instr:
-      F '=' Exp ';' {
+    TYPE Declarateurs ';' {
+        Node *tmp = makeNode(Instr, "local_decl");
+        Node *decl = makeNode(DeclVars, NULL);
+        addChild(decl, makeNode(id, $1));
+        addChild(decl, $2);
+        addChild(tmp, decl);
+        $$ = tmp;
+    }
+  | STRUCT IDENT Declarateurs ';' {
+        Node *tmp = makeNode(Instr, "local_decl_struct");
+        Node *decl = makeNode(DeclVars, NULL);
+        Node *structType = makeNode(id, "struct");
+        addChild(structType, makeNode(id, $2));
+        addChild(decl, structType);
+        addChild(decl, $3);
+        addChild(tmp, decl);
+        $$ = tmp;
+    }
+  | STRUCT IDENT '{' StructFields '}' ';' {
+        Node *tmp = makeNode(Instr, "local_struct_decl");
+        Node *structNode = makeNode(StructDecl, NULL);
+        addChild(structNode, makeNode(id, $2));
+        addChild(structNode, $4);
+        addChild(tmp, structNode);
+        $$ = tmp;
+    }
+  | F '=' Exp ';' {
         Node *tmp = makeNode(Instr, "assign");
         addChild(tmp, $1);
         addChild(tmp, $3);
@@ -367,8 +332,6 @@ Instr:
         $$ = makeNode(Instr, "empty_instr");
     }
 ;
-
-/* Reste du code (Expressions et Appels) - inchangé */
 
 Exp:
     Exp OR TB {

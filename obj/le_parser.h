@@ -69,7 +69,8 @@ extern int yydebug;
     AND = 270,                     /* AND  */
     OR = 271,                      /* OR  */
     EQ = 272,                      /* EQ  */
-    ORDER = 273                    /* ORDER  */
+    ORDER = 273,                   /* ORDER  */
+    DOT = 274                      /* DOT  */
   };
   typedef enum yytokentype yytoken_kind_t;
 #endif
@@ -85,7 +86,7 @@ union YYSTYPE
     char id[64];
     Node *node;
 
-#line 89 "obj/le_parser.h"
+#line 90 "obj/le_parser.h"
 
 };
 typedef union YYSTYPE YYSTYPE;

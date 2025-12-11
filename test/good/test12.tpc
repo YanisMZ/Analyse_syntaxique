@@ -1,0 +1,9 @@
+
+struct aircraft {
+int height, width;
+struct engine motor;
+};
+
+void foo(struct aircraft e){
+    return;
+}

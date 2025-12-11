@@ -1,7 +1,9 @@
-Rapport des tests - lun. 03 nov. 2025 17:05:49 CET
+Rapport des tests - jeu. 11 déc. 2025 01:13:46 CET
 -----------------------------------------
 Tests GOOD:
 ✅ test/good/test10.tpc : Réussi
+✅ test/good/test11.tpc : Réussi
+✅ test/good/test12.tpc : Réussi
 ✅ test/good/test1.tpc : Réussi
 ✅ test/good/test2.tpc : Réussi
 ✅ test/good/test3.tpc : Réussi
@@ -14,6 +16,9 @@ Tests GOOD:
 -----------------------------------------
 Tests SYN-ERR:
 ✅ test/syn-err/test10.tpc : Réussi (Erreur détectée)
+✅ test/syn-err/test11.tpc : Réussi (Erreur détectée)
+✅ test/syn-err/test12.tpc : Réussi (Erreur détectée)
+✅ test/syn-err/test13.tpc : Réussi (Erreur détectée)
 ✅ test/syn-err/test1.tpc : Réussi (Erreur détectée)
 ✅ test/syn-err/test2.tpc : Réussi (Erreur détectée)
 ✅ test/syn-err/test3.tpc : Réussi (Erreur détectée)
@@ -25,5 +30,5 @@ Tests SYN-ERR:
 ✅ test/syn-err/test9.tpc : Réussi (Erreur détectée)
 -----------------------------------------
 Résumé:
-Tests GOOD: 10 / 10 réussis
-Tests SYN-ERR: 10 / 10 réussis
+Tests GOOD: 12 / 12 réussis
+Tests SYN-ERR: 13 / 13 réussis

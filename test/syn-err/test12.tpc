@@ -1,6 +1,7 @@
-
-
-
+struct air {
+int height, width;
+struct engine motor;
+};
 
 struct aircraft {
 int height, width;
@@ -12,6 +13,8 @@ struct aircraft my_plane, my_shuttle, my_satellite;
 
 
 int main(void) {
+    my_plane.height = 0;
+    my_plane = my_shuttle;
     int a;
     int b;
     return 0;

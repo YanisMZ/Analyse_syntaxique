@@ -1,0 +1,4 @@
+void foo(void) {
+   a = 1; // Instruction
+   struct B { int x; }; // Définition locale (INTERDIT après une instruction)
+}

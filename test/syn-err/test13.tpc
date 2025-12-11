@@ -1,0 +1,2 @@
+int a;
+struct B { int x; }; // Erreur de syntaxe ici !
